@@ -4,16 +4,8 @@ import { Input } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-export interface UserInput {
-  id: string;
-  name: string;
-}
 
-export type InputRowProps = {
-  userInput: UserInput;
-  onChange: (value: string) => void;
-  onDelete: () => void;
-};
+import { InputRowProps, UserInput, loadInputsFromStorage } from "@/utils/utils";
 
 const InputRow: React.FC<InputRowProps> = ({
   userInput,
@@ -33,16 +25,6 @@ const InputRow: React.FC<InputRowProps> = ({
       </Button>
     </div>
   );
-};
-
-export const loadInputsFromStorage = (): UserInput[] => {
-  const data = localStorage.getItem("userInputs");
-
-  if (data) {
-    return JSON.parse(data);
-  }
-
-  return [];
 };
 
 export default function Home() {

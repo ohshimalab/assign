@@ -1,7 +1,8 @@
 "use client";
 import { Button } from "@nextui-org/button";
 import { useEffect, useState } from "react";
-import { loadInputsFromStorage, UserInput } from "../page";
+
+import { UserInput, assign, loadInputsFromStorage } from "@/utils/utils";
 
 type ResultRowProps = {
   first_user: UserInput;
@@ -25,27 +26,6 @@ const ResultRow: React.FC<ResultRowProps> = ({ first_user, second_user }) => {
       </div>
     </div>
   );
-};
-
-export const assign = (inputs: UserInput[]) => {
-  if (inputs.filter((input) => input.name.trim().length > 0).length < 2) {
-    return [];
-  }
-  const shuffled = inputs.sort(() => Math.random() - 0.5);
-  const result = [];
-
-  for (let i = 0; i < shuffled.length - 1; i += 1) {
-    result.push({
-      first_user: shuffled[i],
-      second_user: shuffled[i + 1],
-    });
-  }
-  result.push({
-    first_user: shuffled[shuffled.length - 1],
-    second_user: shuffled[0],
-  });
-
-  return result;
 };
 
 const makePairsText = (pairs: UserPair[]) => {
@@ -92,7 +72,7 @@ export default function ResultPage() {
         シャッフル
       </Button>
       <Button fullWidth color="success" onPress={() => onCopy()}>
-        コピー
+        クリップボードにコピー
       </Button>
       <div className="w-full flex flex-col gap-5">
         {userPairs.map((pair, index) => (
