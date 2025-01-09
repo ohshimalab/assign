@@ -1,14 +1,15 @@
 "use client";
 import { Button } from "@nextui-org/button";
 import { Input } from "@nextui-org/react";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 export interface UserInput {
   id: string;
   name: string;
 }
 
-type InputRowProps = {
+export type InputRowProps = {
   userInput: UserInput;
   onChange: (value: string) => void;
   onDelete: () => void;
@@ -34,45 +35,89 @@ const InputRow: React.FC<InputRowProps> = ({
   );
 };
 
+export const loadInputsFromStorage = (): UserInput[] => {
+  const data = localStorage.getItem("userInputs");
+
+  if (data) {
+    return JSON.parse(data);
+  }
+
+  return [];
+};
+
 export default function Home() {
   const [inputs, setInputs] = useState<UserInput[]>([]);
+  const router = useRouter();
 
+  useEffect(() => {
+    loadInputs();
+  }, []);
+
+  const saveInputs = (inputs: UserInput[]) => {
+    localStorage.setItem("userInputs", JSON.stringify(inputs));
+  };
+  const loadInputs = () => {
+    const inputs = loadInputsFromStorage();
+
+    setInputs(inputs);
+  };
   const onInputChange = (id: string, value: string) => {
     setInputs((prevInputs) => {
-      return prevInputs.map((input) => {
+      const newInputs = prevInputs.map((input) => {
         if (input.id === id) {
           return { ...input, name: value };
         } else {
           return input;
         }
       });
+
+      saveInputs(newInputs);
+
+      return newInputs;
     });
   };
   const onAddInput = () => {
     setInputs((prevInputs) => {
-      return [
+      const newInputs = [
         ...prevInputs,
         {
           id: uuidv4(),
           name: "",
         },
       ];
+
+      saveInputs(newInputs);
+
+      return newInputs;
     });
   };
   const onDeleteInput = (id: string) => {
-    return setInputs((prevInputs) => {
-      return prevInputs.filter((input) => input.id !== id);
+    setInputs((prevInputs) => {
+      const newInputs = prevInputs.filter((input) => input.id !== id);
+
+      saveInputs(newInputs);
+
+      return newInputs;
     });
+  };
+
+  const onSubmit = () => {
+    if (inputs.filter((input) => input.name.trim().length > 0).length < 2) {
+      alert("2つ以上の名前を入力してください");
+
+      return;
+    }
+    router.push("/result");
   };
 
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
-      <Button fullWidth color="primary" size="lg">
-        実行
+      <Button fullWidth color="primary" size="lg" onPress={onSubmit}>
+        シャッフル
       </Button>
-      <Button fullWidth color="secondary" size="lg" variant="bordered">
+      {/* <Button fullWidth color="secondary" size="lg" variant="bordered">
         共有
-      </Button>
+      </Button> */}
       {inputs.map((input) => (
         <InputRow
           key={input.id}
