@@ -1,6 +1,6 @@
 "use client";
 import { Button } from "@nextui-org/button";
-import { Input } from "@nextui-org/react";
+import { Checkbox, Input } from "@nextui-org/react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { v4 as uuidv4 } from "uuid";
@@ -11,9 +11,14 @@ const InputRow: React.FC<InputRowProps> = ({
   userInput,
   onChange,
   onDelete,
+  onToggle,
 }) => {
   return (
     <div className="w-full flex gap-4 items-center">
+      <Checkbox
+        isSelected={userInput.enabled}
+        onChange={(e) => onToggle(e.target.checked)}
+      />
       <Input
         placeholder="名前を入力"
         size="lg"
@@ -58,6 +63,21 @@ export default function Home() {
       return newInputs;
     });
   };
+  const onToggleInput = (id: string, enabled: boolean) => {
+    setInputs((prevInputs) => {
+      const newInputs = prevInputs.map((input) => {
+        if (input.id === id) {
+          return { ...input, enabled };
+        } else {
+          return input;
+        }
+      });
+
+      saveInputs(newInputs);
+
+      return newInputs;
+    });
+  };
   const onAddInput = () => {
     setInputs((prevInputs) => {
       const newInputs = [
@@ -65,6 +85,7 @@ export default function Home() {
         {
           id: uuidv4(),
           name: "",
+          enabled: true,
         },
       ];
 
@@ -84,18 +105,64 @@ export default function Home() {
   };
 
   const onSubmit = () => {
-    if (inputs.filter((input) => input.name.trim().length > 0).length < 2) {
-      alert("2つ以上の名前を入力してください");
+    if (
+      inputs.filter((input) => input.name.trim().length > 0 && input.enabled)
+        .length < 2
+    ) {
+      alert("２人以上選択してください");
 
       return;
     }
     router.push("/result");
   };
 
+  const isAllEnabled = inputs.every((input) => input.enabled);
+
+  const onSelectAll = () => {
+    setInputs((prevInputs) => {
+      const newInputs = prevInputs.map((input) => {
+        return { ...input, enabled: true };
+      });
+
+      saveInputs(newInputs);
+
+      return newInputs;
+    });
+  };
+
+  const onDeselectAll = () => {
+    setInputs((prevInputs) => {
+      const newInputs = prevInputs.map((input) => {
+        return { ...input, enabled: false };
+      });
+
+      saveInputs(newInputs);
+
+      return newInputs;
+    });
+  };
+
+  const onToggleAll = () => {
+    if (isAllEnabled) {
+      onDeselectAll();
+    } else {
+      onSelectAll();
+    }
+  };
+
   return (
     <section className="flex flex-col items-center justify-center gap-4 py-8 md:py-10">
       <Button fullWidth color="primary" size="lg" onPress={onSubmit}>
         シャッフル
+      </Button>
+      <Button
+        fullWidth
+        color="secondary"
+        size="lg"
+        variant="bordered"
+        onPress={onToggleAll}
+      >
+        {isAllEnabled ? "全て選択解除" : "全て選択"}
       </Button>
       {/* <Button fullWidth color="secondary" size="lg" variant="bordered">
         共有
@@ -106,6 +173,7 @@ export default function Home() {
           userInput={input}
           onChange={(value) => onInputChange(input.id, value)}
           onDelete={() => onDeleteInput(input.id)}
+          onToggle={(enabled) => onToggleInput(input.id, enabled)}
         />
       ))}
       <Button fullWidth color="success" size="lg" onPress={() => onAddInput()}>

@@ -1,12 +1,14 @@
 export interface UserInput {
   id: string;
   name: string;
+  enabled: boolean;
 }
 
 export type InputRowProps = {
   userInput: UserInput;
   onChange: (value: string) => void;
   onDelete: () => void;
+  onToggle: (enabled: boolean) => void;
 };
 
 export const loadInputsFromStorage = (): UserInput[] => {

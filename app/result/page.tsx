@@ -39,7 +39,7 @@ export default function ResultPage() {
 
   useEffect(() => {
     const inputs = loadInputsFromStorage().filter(
-      (input) => input.name.trim().length > 0
+      (input) => input.name.trim().length > 0 && input.enabled
     );
 
     const pairs = assign(inputs);
@@ -49,7 +49,7 @@ export default function ResultPage() {
 
   const shuffle = () => {
     const inputs = loadInputsFromStorage().filter(
-      (input) => input.name.trim().length > 0
+      (input) => input.name.trim().length > 0 && input.enabled
     );
 
     const pairs = assign(inputs);
