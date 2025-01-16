@@ -14,7 +14,9 @@ const InputRow: React.FC<InputRowProps> = ({
   onToggle,
 }) => {
   return (
-    <div className="w-full flex gap-4 items-center">
+    <div
+      className={`w-full flex gap-4 items-center ${userInput.enabled ? "" : "opacity-60"}`}
+    >
       <Checkbox
         isSelected={userInput.enabled}
         onChange={(e) => onToggle(e.target.checked)}
